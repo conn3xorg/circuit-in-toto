@@ -8,7 +8,7 @@ Each host gets in-toto 3.1.0 in a virtual environment of its own under `/opt/in-
 
 ```hcl
 module "in_toto" {
-  source = "github.com/conn3xorg/circuit-in-toto?ref=v0.1.0"
+  source = "github.com/conn3xorg/circuit-in-toto?ref=v0.1.1"
 
   hosts                = { build = "203.0.113.10", release = "203.0.113.11" }
   ssh_private_key_file = "~/.ssh/id_ed25519"
@@ -102,6 +102,8 @@ Requires Conn3x v0.7.0 or later. Hosts need to reach PyPI, or a mirror pip is se
 ## Tested on
 
 Ubuntu 24.04, Debian 13, Rocky Linux 10 and Fedora 45, with in-toto 3.1.0. [examples/local](examples/local) was applied to each in a container on arm64, and CI does the same on amd64: it checks that the second plan has no changes, then runs `check.sh`, which makes three ed25519 keys and a two-step layout with an inspection, runs the build through `in-toto-run`, and checks that `in-toto-verify` accepts it and refuses both a source file changed between the steps and a tarball swapped afterwards. Then it restarts the container, plans again with no changes, and runs the check again. On Debian 13, requirements with one hash changed failed the apply with pip's hash mismatch, and an `in_toto_version` without `requirements` stopped the plan.
+
+Upgrades are tested too. CI starts a fresh host, applies in-toto 3.0.0 from the requirements in [tests/upgrade](tests/upgrade), then applies the circuit's own 3.1.0 over it. The plan after has no changes and `check.sh` passes on 3.1.0. That also ran in a container on arm64 on Rocky Linux 10 and Debian 13.
 
 On an Ubuntu 24.04 droplet and a Rocky Linux 10 droplet with SELinux enforcing, both `s-1vcpu-1gb`, the circuit was applied and the same check passed. Changed requirements installed again, and the plan after had no changes. After a reboot the plan had no changes and the check passed again. Debian 13 and Fedora 45 ran in containers only.
 

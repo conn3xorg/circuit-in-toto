@@ -36,7 +36,8 @@ variable "ssh_become" {
 variable "in_toto_version" {
   type        = string
   default     = "3.1.0"
-  description = "in-toto release to install from PyPI. Any other than 3.1.0 needs requirements to match."
+  nullable    = false
+  description = "in-toto release to install from PyPI. Any other than 3.1.0 needs requirements to match. Null means the default."
 
   validation {
     condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+$", var.in_toto_version))
