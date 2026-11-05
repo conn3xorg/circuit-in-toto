@@ -92,6 +92,25 @@ jobs:
       - name: Build and verify again after the restart
         working-directory: examples/local
         run: *check
+      # A fresh host gets the previous minor release from the lock in
+      # tests/upgrade, then the circuit's own pin is applied over it, the way
+      # someone moves to a new release of this circuit.
+      - name: Upgrade from in-toto 3.0.0 on a fresh host, then plan again with no changes
+        working-directory: examples/local
+        env:
+          CONTAINERFILE: ${{ github.workspace }}/conn3x/test/images/${{ matrix.distro }}/Containerfile
+          PODMAN: sudo podman
+        run: |
+          ./down.sh
+          ./up.sh
+          conn3x init
+          conn3x apply -auto-approve -var in_toto_version=3.0.0 -var requirements_file=../../tests/upgrade/in-toto-3.0.0.txt
+          sudo podman exec circuit-in-toto in-toto-run --version 2>&1 | grep -q " 3.0.0\$"
+          conn3x apply -auto-approve
+          conn3x plan -detailed-exitcode
+      - name: Build and verify with the upgraded in-toto
+        working-directory: examples/local
+        run: *check
       - name: Clean up
         if: always()
         working-directory: examples/local
